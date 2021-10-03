@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-vector<string> getInput(int count);
+void getInput(int count);
 void sortByArrival(vector<Process> p);
 
 struct Process
@@ -43,11 +43,8 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-vector<string> getInput(int count)
+void getInput(int count)
 {
-    string input;
-    vector<string> params;
-
     for (int i = 0; i < count; i++)
     {
         Process temp;
@@ -61,8 +58,6 @@ vector<string> getInput(int count)
         cout << OUTPUT[2];
         cin >> Q0[i].BT;
     }
-
-    return params;
 }
 
 void sortByArrival(vector<Process> p)
