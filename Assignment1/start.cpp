@@ -1,47 +1,71 @@
 #include <iostream>
 #include <vector>
+#include <bits/stdc++.h>
+#include <vector>
 using namespace std;
 
-vector<string> getInput(vector<string> output, int& count);
+vector<string> getInput(int count);
+void sortByArrival(vector<Process> p);
 
 struct Process
 {
-    string id;
-    int at;
-    int bt;
+    string ID;
+    int AT, BT, WT, TAT;
+
+    bool operator< (const Process &other) const{
+        return AT < other.AT;
+    }
 };
+
+// make our queues
+vector<Process> Q0;
+vector<Process> Q1;
+vector<Process> Q2;
+
+const vector<string> OUTPUT = { "Please enter the process name", "Please enter AT", "Please enter BT" };
+
 
 int main(int argc, char *argv[])
 {
     vector<Process> p;
     vector<string> params;
     string input;
-    int inputCount = 0;
-    vector<string> output = { "Please enter the process name", "Please enter AT", "Please enter BT" };
+    int pCount = 0;
+    
 
-    params = getInput(output, inputCount);
+    cout << "Enter the number of processes";
+    cin >> pCount;
 
-    // write function to parse user inputs
+    getInput(pCount);
+    // sorts processes by arrival time
+    sort(Q0.begin(), Q0.end());
 
     return 0;
 }
 
-vector<string> getInput(vector<string> output, int& count)
+vector<string> getInput(int count)
 {
     string input;
     vector<string> params;
 
-    while (input != "done")
+    for (int i = 0; i < count; i++)
     {
-        // each process has 3 pieces of data
-        cout << output[count % 3];
-        cin >> input;
-        if (input != "done")
-        {
-            params.push_back(input);
-            count++;
-        }
+        Process temp;
+        Q0.push_back(temp);
+        cout << OUTPUT[0];
+        cin >> Q0[i].ID;
+
+        cout << OUTPUT[1];
+        cin >> Q0[i].AT;
+
+        cout << OUTPUT[2];
+        cin >> Q0[i].BT;
     }
 
     return params;
+}
+
+void sortByArrival(vector<Process> p)
+{
+    sort(p.begin(), p.end());
 }
