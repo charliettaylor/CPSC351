@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     getInput(pCount);
     // sorts processes by arrival time
-    sort(Q0.begin(), Q0.end());
+    sortByArrival(Q0);
 
     return 0;
 }
