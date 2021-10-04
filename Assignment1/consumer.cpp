@@ -5,8 +5,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <vector>
+#include <string>
+using namespace std;
 
-int main()
+vector<string> consumer()
 {
     // size in bytes
     const int SIZE = 4096;
@@ -27,8 +30,12 @@ int main()
     // read from the shared memory object
     printf("%s", (char *)ptr);
 
+    // read from memory and put into vector
+
     // remove the shared memory object
     shm_unlink(name);
+
+    // return string vector, (# of processes, input...)
 
     return 0;
 }

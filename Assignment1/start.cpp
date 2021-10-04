@@ -2,6 +2,8 @@
 #include <vector>
 #include <bits/stdc++.h>
 #include <vector>
+#include "producer.cpp"
+#include "consumer.cpp"
 using namespace std;
 
 void getInput(int count);
@@ -10,7 +12,7 @@ void sortByArrival(vector<Process> p);
 struct Process
 {
     string ID;
-    int AT, BT, WT, TAT;
+    int AT, BT, WT, TAT, FT, PT;
 
     bool operator< (const Process &other) const{
         return AT < other.AT;
@@ -22,28 +24,38 @@ vector<Process> Q0;
 vector<Process> Q1;
 vector<Process> Q2;
 
-const vector<string> OUTPUT = { "Please enter the process name", "Please enter AT", "Please enter BT" };
+const vector<string> OUTPUT = { "Please enter the process name: ", "Please enter AT: ", "Please enter BT: " };
 
 
-int main(int argc, char *argv[])
+int main()
 {
-    vector<Process> p;
-    vector<string> params;
-    string input;
-    int pCount = 0;
-    
+    producer();
 
-    cout << "Enter the number of processes";
-    cin >> pCount;
+    // call consumer to get input from shared memory
+    vector<string> input = consumer();
 
-    getInput(pCount);
+    // parse input and put into Q0
+    parse(input);
+
     // sorts processes by arrival time
     sortByArrival(Q0);
+
+    // scheduling code...
+    // process q0 +8 to pt
+    // process q1 +16 to pt
+    // process q2 +remaining to pt
+    // keep track of time to check arrival time
+
+    // output function
+
 
     return 0;
 }
 
-void getInput(int count)
+// takes in consumer vector, insert the input into structs
+// insert structs into the queues
+// ex. [1, p1, 0, 10]
+void parse(vector<string> input)
 {
     for (int i = 0; i < count; i++)
     {

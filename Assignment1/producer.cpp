@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-int main()
+void producer()
 {
     // size in bytes
     const int SIZE = 4096;
@@ -21,6 +21,7 @@ int main()
     int shm_fd;
     // pointer to shared memory object
     void *ptr;
+    char *charptr;
 
     // create the shared memory object
     shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
@@ -30,12 +31,15 @@ int main()
 
     // memory map of the shared memory object
     ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    charptr = (char *) ptr;
+
+    // get input function
+
+    // write the input to the shared memory
 
     // write to the shared memory object
-    sprintf(ptr, "%s", message_0);
-    ptr += strlen(message_0);
-    sprintf(ptr, "%s", message_1) ;
-    ptr += strlen(message_1);
-
-    return 0;
+    sprintf(charptr, "%s", message_0);
+    charptr += strlen(message_0);
+    sprintf(charptr, "%s", message_1);
+    charptr += strlen(message_1);
 }
