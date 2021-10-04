@@ -7,6 +7,14 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+const vector<string> OUTPUT = { 
+    "Please enter the process name: ",
+    "Please enter AT: ",
+    "Please enter BT: "
+    };
+
+vector<string> getInput();
+
 void producer()
 {
     // size in bytes
@@ -33,13 +41,29 @@ void producer()
     ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
     charptr = (char *) ptr;
 
-    // get input function
+    // get input
+    vector<string> input = getInput();
 
     // write the input to the shared memory
+    for (string in : input)
+    {
+        sprintf(charptr, "%s", in);
+        charptr += strlen(in);
+    } 
+}
 
-    // write to the shared memory object
-    sprintf(charptr, "%s", message_0);
-    charptr += strlen(message_0);
-    sprintf(charptr, "%s", message_1);
-    charptr += strlen(message_1);
+vector<string> getInput()
+{
+    string input;
+    vector<string> in;
+    int count = 0;
+    while (input != "done")
+    {
+        cout << OUTPUT[count % 3];
+        cin >> input;
+        in.push_back(input);
+        count++;
+    }
+
+    return in;
 }
