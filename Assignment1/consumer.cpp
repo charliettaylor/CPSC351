@@ -30,29 +30,29 @@ vector<string> consumer()
     ptr = mmap(0, SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
 
     // read from the shared memory object
-    printf("%s", (char *)ptr);
+    //printf("%s", (char *)ptr);
 
     // read from memory and put into vector
     char *charptr = (char *)ptr; // Create char pointer and make it equal to typecast ptr
-    std::vector<std::string> output; // Create vector for the function to output
+    std::vector<std::string> strvec; // Create vector for the function to output
     std::string str; // Create holding variable for the string values
     do {
-        if (*charptr != (',' || NULL)){ // Check if delimiter is hit, or the end has been reached
+        if (*charptr != ','){ // Check if comma delimiter is hit
             str += *charptr; // Add character to string variable
             charptr++; // Move forward in memory
         }
         else { // Execute if delimiter is hit
-            output.push_back(str); // Add string as an element to the output vector
+            strvec.push_back(str); // Add string as an element to the output vector
             str.clear(); // clear the string so that new info can be held
             charptr++; // Move forward in memory
         }
-    } while (charptr != '\0'); // Continue loop unless the end was reached
+    } while (*charptr != '\0'); // Continue loop unless the end was reached
 
 
     // remove the shared memory object
     shm_unlink(name);
 
     // return string vector, (# of processes, input...)
-    return output;
+    return strvec;
     //return 0;
 }
