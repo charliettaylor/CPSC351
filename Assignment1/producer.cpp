@@ -47,7 +47,7 @@ void producer()
     // write the input to the shared memory
     for (string in : input)
     {
-        sprintf(charptr, "%s", in);
+        sprintf(charptr, "%s,", in);
         charptr += strlen(in);
     }
 }
