@@ -35,15 +35,15 @@ vector<string> consumer()
     // read from memory and put into vector
     char *charptr = (char *)ptr; // Create char pointer and make it equal to typecast ptr
     std::vector<std::string> strvec; // Create vector for the function to output
-    std::string str; // Create holding variable for the string values
+    std::string tempstring; // Create holding variable for the string values
     do {
         if (*charptr != ','){ // Check if comma delimiter is hit
-            str += *charptr; // Add character to string variable
+            tempstring += *charptr; // Add character to string variable
             charptr++; // Move forward in memory
         }
         else { // Execute if delimiter is hit
-            strvec.push_back(str); // Add string as an element to the output vector
-            str.clear(); // clear the string so that new info can be held
+            strvec.emplace_back(tempstring); // Add string as an element to the output vector
+            tempstring.clear(); // clear the string so that new info can be held
             charptr++; // Move forward in memory
         }
     } while (*charptr != '\0'); // Continue loop unless the end was reached

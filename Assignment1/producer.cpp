@@ -6,6 +6,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <vector>
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 const vector<string> OUTPUT = { 
     "Please enter the process name: ",
@@ -47,8 +52,10 @@ void producer()
     // write the input to the shared memory
     for (string in : input)
     {
-        sprintf(charptr, "%s,", in);
-        charptr += strlen(in);
+        sprintf(charptr, "%s" , in.data());
+        charptr += in.size();
+        sprintf(charptr, ",");
+        charptr++;
     }
 }
 
@@ -61,7 +68,9 @@ vector<string> getInput()
     {
         cout << OUTPUT[count % 3];
         cin >> input;
-        in.push_back(input);
+        if (input != "done"){
+            in.push_back(input);
+        }
         count++;
     }
 
