@@ -49,7 +49,7 @@ void producer()
     {
         sprintf(charptr, "%s", in);
         charptr += strlen(in);
-    } 
+    }
 }
 
 vector<string> getInput()
