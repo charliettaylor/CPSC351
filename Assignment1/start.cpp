@@ -7,11 +7,6 @@
 #include "consumer.cpp"
 using namespace std;
 
-void getInput(int count);
-void sortByArrival(vector<Process> p);
-void scheduler(int n);
-int qCheck(vector<Process> q, int time);
-
 struct Process
 {
     string ID;
@@ -23,16 +18,26 @@ struct Process
     }
 };
 
+void parse(vector<string> cou);
+void sortByArrival(vector<Process> p);
+void scheduler();
+int qCheck(vector<Process> q);
+void roundRobin(int idx, int q, vector<Process> queue);
+string pop_front(vector<string> input);
+void completeProcess(vector<Process> queue, int i);
+void commentator(Process p, vector<Process> q, int length, bool done);
+
+
 // make our queues
 vector<Process> Q0;
 vector<Process> Q1;
 vector<Process> Q2;
 vector<Process> done;
 
-// time for scheduler
-int time = 0;
+// stime for scheduler
+int stime = 0;
 // names for commentator function
-const map<vector<Process>, string> Q_NAMES{
+const map<vector<Process>&, string> Q_NAMES{
     {Q0, "Queue 0"},
     {Q1, "Queue 1"},
     {Q2, "Queue 2"}
@@ -48,7 +53,7 @@ int main()
     // parse input and put into Q0
     parse(input);
 
-    // sorts processes by arrival time
+    // sorts processes by arrival stime
     sortByArrival(Q0);
 
     // run scheduler, should have commentator function
@@ -61,21 +66,39 @@ int main()
 // insert structs into the queues
 // ex. [1, p1, 0, 10]
 void parse(vector<string> input)
-{
-    for (int i = 0; i < count; i++)
+{ 
+    //check if vector size is a mult of 3 and every 2nd and 3rd are nums
+    for (int i = 0; i < input.size(); i++)
     {
+      if(input.size()%3  ==  0)
+      {cout << "exiting bad input" << endl;
+      exit(1);}
         Process temp;
         Q0.push_back(temp);
-        cout << OUTPUT[0];
-        cin >> Q0[i].ID;
+        Q0[i].ID = stoi(pop_front(input));
+        //int AT = stoi(input.pop_front());
+        try{
+            int AT = stoi(pop_front(input));
+        }
+        catch(exception &err)
+        {cerr << "Conversion failure"<< endl;
+        exit(1);}
+        Q0[i].AT = stoi(pop_front(input));
 
-        cout << OUTPUT[1];
-        cin >> Q0[i].AT;
 
-        cout << OUTPUT[2];
-        cin >> Q0[i].BT;
+        try{
+            int AT = stoi(pop_front(input));
+        }
+        catch(exception &err)
+        {cerr << "Conversion failure"<< endl;
+        exit(1);}
+        Q0[i].BT  = stoi(pop_front(input));
+
+        //if stoi fails exit find out the error info
+
     }
 }
+
 
 void sortByArrival(vector<Process> p)
 {
@@ -90,11 +113,11 @@ void scheduler()
     {
         if (qCheck(Q0) != -1)
         {
-            RoundRobin(qCheck(Q0), 8, Q0);
+            roundRobin(qCheck(Q0), 8, Q0);
         }
         else if (qCheck(Q1) != -1)
         {
-            RoundRobin(qCheck(Q1), 16, Q1);
+            roundRobin(qCheck(Q1), 16, Q1);
         }
         else
         {
@@ -110,7 +133,7 @@ int qCheck(vector<Process> q)
 {
     for (int i = 0; i < q.size(); i++)
     {
-        if (q[i].AT <= time)
+        if (q[i].AT <= stime)
         {
             return i;
         }
@@ -119,7 +142,7 @@ int qCheck(vector<Process> q)
     return -1;
 }
 
-void RoundRobin(int idx, int q, vector<Process> queue)
+void roundRobin(int idx, int q, vector<Process> queue)
 {
     int BT = queue[idx].BT;
     if (BT - queue[idx].PT <= q)
@@ -128,9 +151,9 @@ void RoundRobin(int idx, int q, vector<Process> queue)
     }
     else
     {
-        // increment time
-        time += q;
-        // add the quantum to the process time
+        // increment stime
+        stime += q;
+        // add the quantum to the process stime
         queue[idx].PT += q;
         // add to the interrupt count
         queue[idx].IT += 1;
@@ -155,28 +178,35 @@ void RoundRobin(int idx, int q, vector<Process> queue)
     }
 }
 
-// when the quantum of the queue is >= the burst time
+// when the quantum of the queue is >= the burst stime
 void completeProcess(vector<Process> queue, int i)
 {
-    // increment time remaining to finish process
-    time += queue[i].BT - queue[i].PT;
-    // set the process time to the burst
+    // increment stime remaining to finish process
+    stime += queue[i].BT - queue[i].PT;
+    // set the process stime to the burst
     queue[i].PT = queue[i].BT;
     // let user know what's happening
     commentator(queue[i], queue, queue[i].BT - queue[i].PT, true);
     // the process is complete, so move it to done
-    done.push_back(queue[idx]);
+    done.push_back(queue[i]);
     // remove process from queue
-    queue.erase(queue.begin() + idx);
+    queue.erase(queue.begin() + i);
 }
 
-void commentator(Process p, vector<string> q, int length, bool done)
+string pop_front(vector<string> input)
+{
+    string temp = input[0];
+    input.erase(input.begin());
+    return temp;
+}
+
+void commentator(Process p, vector<Process> q, int length, bool done)
 {
     if (done)
     {
         cout << p.ID << " is interrupted " << p.IT <<\
-        " time(s) and completes on " << Q_NAMES[q] <<\
-        ", TAT for " << p.ID << " is " << time - p.BT;
+        " stime(s) and completes on " << Q_NAMES[q] <<\
+        ", TAT for " << p.ID << " is " << stime - p.BT;
     }
     else
     {
