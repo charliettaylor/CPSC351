@@ -16,16 +16,22 @@ struct Process
     bool operator< (const Process &other) const{
         return AT < other.AT;
     }
+
+    bool operator== (const Process other) const{
+        return this->AT == other.AT && this->ID == other.ID && this->BT == other.BT;
+    }
+
+    Process() : AT(0), BT(0), PT(0), IT(0) {}
 };
 
-void parse(vector<string> cou);
-void sortByArrival(vector<Process> p);
+void parse(vector<string>& cou);
+void sortByArrival(vector<Process>& p);
 void scheduler();
-int qCheck(vector<Process> q);
-void roundRobin(int idx, int q, vector<Process> queue);
-string pop_front(vector<string> input);
-void completeProcess(vector<Process> queue, int i);
-void commentator(Process p, vector<Process> q, int length, bool done);
+int qCheck(vector<Process>& q);
+void roundRobin(int idx, int q, vector<Process>& queue);
+string pop_front(vector<string>& input);
+void completeProcess(vector<Process>& queue, int i);
+void commentator(Process& p, vector<Process>& q, int length, bool done);
 
 
 // make our queues
@@ -36,12 +42,6 @@ vector<Process> done;
 
 // stime for scheduler
 int stime = 0;
-// names for commentator function
-const map<vector<Process>&, string> Q_NAMES{
-    {Q0, "Queue 0"},
-    {Q1, "Queue 1"},
-    {Q2, "Queue 2"}
-};
 
 int main()
 {
@@ -57,6 +57,7 @@ int main()
     sortByArrival(Q0);
 
     // run scheduler, should have commentator function
+    
     scheduler();
 
     return 0;
@@ -65,44 +66,49 @@ int main()
 // takes in consumer vector, insert the input into structs
 // insert structs into the queues
 // ex. [1, p1, 0, 10]
-void parse(vector<string> input)
+void parse(vector<string>& input)
 { 
     //check if vector size is a mult of 3 and every 2nd and 3rd are nums
+    if(input.size() % 3  !=  0)
+    {
+        cout << "exiting bad input" << endl;
+        exit(1);
+    }
+
     for (int i = 0; i < input.size(); i++)
     {
-      if(input.size()%3  ==  0)
-      {cout << "exiting bad input" << endl;
-      exit(1);}
         Process temp;
         Q0.push_back(temp);
-        Q0[i].ID = stoi(pop_front(input));
-        //int AT = stoi(input.pop_front());
-        try{
-            int AT = stoi(pop_front(input));
+        Q0[i].ID = pop_front(input);
+
+        try
+        {
+            Q0[i].AT= stoi(pop_front(input));
         }
         catch(exception &err)
-        {cerr << "Conversion failure"<< endl;
-        exit(1);}
-        Q0[i].AT = stoi(pop_front(input));
+        {
+            cerr << "Conversion failure"<< endl;
+            exit(1);
+        }
 
-
-        try{
-            int AT = stoi(pop_front(input));
+        try
+        {
+            Q0[i].BT  = stoi(pop_front(input));
         }
         catch(exception &err)
-        {cerr << "Conversion failure"<< endl;
-        exit(1);}
-        Q0[i].BT  = stoi(pop_front(input));
-
-        //if stoi fails exit find out the error info
-
+        {
+            cerr << "Conversion failure"<< endl;
+            exit(1);
+        }
     }
+
+    vector<Process> test = Q0;
 }
 
 
-void sortByArrival(vector<Process> p)
+void sortByArrival(vector<Process>& q)
 {
-    sort(p.begin(), p.end());
+    sort(q.begin(), q.end());
 }
 
 // n is number of processes
@@ -119,17 +125,21 @@ void scheduler()
         {
             roundRobin(qCheck(Q1), 16, Q1);
         }
-        else
+        else if (qCheck(Q2) != -1)
         {
             // only ran when other q's are empty or p's not arrived
             completeProcess(Q2, 0);
+        }
+        else
+        {
+            stime += 1;
         }
     }
 }
 
 /* check if there is a process to be executed
 returns -1 if no such process is found */
-int qCheck(vector<Process> q)
+int qCheck(vector<Process>& q)
 {
     for (int i = 0; i < q.size(); i++)
     {
@@ -142,7 +152,7 @@ int qCheck(vector<Process> q)
     return -1;
 }
 
-void roundRobin(int idx, int q, vector<Process> queue)
+void roundRobin(int idx, int q, vector<Process>& queue)
 {
     int BT = queue[idx].BT;
     if (BT - queue[idx].PT <= q)
@@ -179,7 +189,7 @@ void roundRobin(int idx, int q, vector<Process> queue)
 }
 
 // when the quantum of the queue is >= the burst stime
-void completeProcess(vector<Process> queue, int i)
+void completeProcess(vector<Process>& queue, int i)
 {
     // increment stime remaining to finish process
     stime += queue[i].BT - queue[i].PT;
@@ -193,23 +203,37 @@ void completeProcess(vector<Process> queue, int i)
     queue.erase(queue.begin() + i);
 }
 
-string pop_front(vector<string> input)
+string pop_front(vector<string>& input)
 {
     string temp = input[0];
     input.erase(input.begin());
     return temp;
 }
 
-void commentator(Process p, vector<Process> q, int length, bool done)
+void commentator(Process& p, vector<Process>& q, int length, bool done)
 {
-    if (done)
+    string qname;
+    if (q == Q0)
     {
-        cout << p.ID << " is interrupted " << p.IT <<\
-        " stime(s) and completes on " << Q_NAMES[q] <<\
-        ", TAT for " << p.ID << " is " << stime - p.BT;
+        qname = "Queue 0";
+    }
+    else if (q == Q1)
+    {
+        qname = "Queue 1";
     }
     else
     {
-        cout << p.ID << " at " << Q_NAMES[q] << " it is executed for " << length << "\n";
+        qname = "Queue 2";
+    }
+
+    if (done)
+    {
+        cout << p.ID << " is interrupted " << p.IT <<\
+        " time(s) and completes on " << qname <<\
+        ", TAT for " << p.ID << " is " << stime - p.AT << "\n";
+    }
+    else
+    {
+        cout << p.ID << " at " << qname << " it is executed for " << length << "\n";
     }
 }

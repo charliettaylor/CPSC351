@@ -57,6 +57,7 @@ void producer()
         sprintf(charptr, ",");
         charptr++;
     }
+    cout << "\n";
 }
 
 vector<string> getInput()
