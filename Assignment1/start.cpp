@@ -3,7 +3,6 @@
 #include <bits/stdc++.h>
 #include <vector>
 #include <map>
-#include "producer.cpp"
 #include "consumer.cpp"
 using namespace std;
 
@@ -33,7 +32,6 @@ string pop_front(vector<string>& input);
 void completeProcess(vector<Process>& queue, int i);
 void commentator(Process& p, vector<Process>& q, int length, bool done);
 
-
 // make our queues
 vector<Process> Q0;
 vector<Process> Q1;
@@ -45,8 +43,6 @@ int stime = 0;
 
 int main()
 {
-    producer();
-
     // call consumer to get input from shared memory
     vector<string> input = consumer();
 
