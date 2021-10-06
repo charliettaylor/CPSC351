@@ -70,8 +70,9 @@ void parse(vector<string>& input)
         cerr << "Incorrect number of inputs for processes" << endl;
         exit(1);
     }
-
-    for (int i = 0; i < input.size(); i++)
+    
+    int i = 0;
+    while(!input.empty())
     {
         Process temp;
         Q0.push_back(temp);
@@ -96,6 +97,7 @@ void parse(vector<string>& input)
             cerr << "Conversion failure for BT" << endl;
             exit(1);
         }
+        i++;
     }
 
     vector<Process> test = Q0;

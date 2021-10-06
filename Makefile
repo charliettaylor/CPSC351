@@ -13,6 +13,7 @@ CXX = ${CXX_COMMAND} -std=c++11
 producer: Assignment1/producer.cpp
 	${CXX} Assignment1/producer.cpp -o producer -lrt
 	./producer
+	make clean
 
 start: Assignment1/start.cpp
 	${CXX} Assignment1/start.cpp -o start -lrt
