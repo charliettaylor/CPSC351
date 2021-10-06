@@ -23,15 +23,14 @@ struct Process
     Process() : AT(0), BT(0), PT(0), IT(0) {}
 };
 
-void parse(vector<string>& cou);
 void sortByArrival(vector<Process>& p);
+void parse(vector<string>& cou);
 void scheduler();
 int qCheck(vector<Process>& q);
 void roundRobin(int idx, int q, vector<Process>& queue);
 string pop_front(vector<string>& input);
 void completeProcess(vector<Process>& queue, int i);
 void commentator(Process& p, vector<Process>& q, int length, bool done);
-
 
 // make our queues
 vector<Process> Q0;
@@ -62,13 +61,13 @@ int main()
 
 // takes in consumer vector, insert the input into structs
 // insert structs into the queues
-// ex. [1, p1, 0, 10]
+// ex. [p1, 0, 10]
 void parse(vector<string>& input)
 { 
     //check if vector size is a mult of 3 and every 2nd and 3rd are nums
     if(input.size() % 3  !=  0)
     {
-        cout << "exiting bad input" << endl;
+        cerr << "Incorrect number of inputs for processes" << endl;
         exit(1);
     }
 
@@ -84,7 +83,7 @@ void parse(vector<string>& input)
         }
         catch(exception &err)
         {
-            cerr << "Conversion failure"<< endl;
+            cerr << "Conversion failure for AT" << endl;
             exit(1);
         }
 
@@ -94,7 +93,7 @@ void parse(vector<string>& input)
         }
         catch(exception &err)
         {
-            cerr << "Conversion failure"<< endl;
+            cerr << "Conversion failure for BT" << endl;
             exit(1);
         }
     }
@@ -102,13 +101,13 @@ void parse(vector<string>& input)
     vector<Process> test = Q0;
 }
 
-
+// sorts given Process vector
 void sortByArrival(vector<Process>& q)
 {
     sort(q.begin(), q.end());
 }
 
-// n is number of processes
+// main logic loop for scheduling
 void scheduler()
 {
     // while there is at least 1 process in some queue
@@ -149,6 +148,7 @@ int qCheck(vector<Process>& q)
     return -1;
 }
 
+// Generic process for Round Robin scheduling
 void roundRobin(int idx, int q, vector<Process>& queue)
 {
     int BT = queue[idx].BT;
@@ -179,13 +179,14 @@ void roundRobin(int idx, int q, vector<Process>& queue)
         }
         else
         {
+            // processes from Q2 should NOT be processed by RR
             cerr << "Incorrect queue entered for Round Robin";
             exit(1);
         }
     }
 }
 
-// when the quantum of the queue is >= the burst stime
+// Completes process in given queue at specified index i
 void completeProcess(vector<Process>& queue, int i)
 {
     // increment stime remaining to finish process
@@ -200,6 +201,7 @@ void completeProcess(vector<Process>& queue, int i)
     queue.erase(queue.begin() + i);
 }
 
+// no built in std function for pop_front, define our own
 string pop_front(vector<string>& input)
 {
     string temp = input[0];
@@ -207,6 +209,10 @@ string pop_front(vector<string>& input)
     return temp;
 }
 
+/*
+Prints out info about given Process in q
+length - time processed
+*/
 void commentator(Process& p, vector<Process>& q, int length, bool done)
 {
     string qname;
@@ -231,6 +237,6 @@ void commentator(Process& p, vector<Process>& q, int length, bool done)
     }
     else
     {
-        cout << p.ID << " at " << qname << " it is executed for " << length << "\n";
+        cout << p.ID << " at " << qname << " is executed for " << length << "\n";
     }
 }

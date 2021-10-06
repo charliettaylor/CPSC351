@@ -26,10 +26,6 @@ int main()
     const int SIZE = 4096;
     // name of the shared memory object
     const char *name = "OS";
-    // strings written to shared memory
-    const char *message_0 = "Hello";
-    const char *message_1 = "World!";
-
     // shared memory file descriptor
     int shm_fd;
     // pointer to shared memory object
@@ -58,6 +54,8 @@ int main()
         charptr++;
     }
     cout << "\n";
+
+    return 0;
 }
 
 vector<string> getInput()
