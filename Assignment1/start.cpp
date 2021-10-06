@@ -3,7 +3,6 @@
 #include <bits/stdc++.h>
 #include <vector>
 #include <map>
-#include "producer.cpp"
 #include "consumer.cpp"
 using namespace std;
 
@@ -45,8 +44,6 @@ int stime = 0;
 
 int main()
 {
-    producer();
-
     // call consumer to get input from shared memory
     vector<string> input = consumer();
 

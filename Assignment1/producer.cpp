@@ -20,7 +20,7 @@ const vector<string> OUTPUT = {
 
 vector<string> getInput();
 
-void producer()
+int main()
 {
     // size in bytes
     const int SIZE = 4096;
