@@ -1,8 +1,14 @@
 #include <iostream>
 #include <vector>
-#include <vector>
 #include <map>
 #include <limits>
+#include <mutex>
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 using namespace std;
 
 struct Block
@@ -27,18 +33,41 @@ struct Block
             sum += block;
         return size - sum;
     }
+
+    Block() : size(0) {}
 };
 
-bool worstFit(vector<int>);
+void worstFitAllocation();
+void *worstFit(void *params);
 int mostSpace(int);
 int leastSpace(int);
+void printRam();
 void clearRam();
 int remainingSpace();
+void printSpace();
 
+// blocks to be filled
 vector<Block> ram;
+// size of blocks to be placed
+vector<int> allocate;
+// lock for threads
+mutex mtx;
 
 int main()
 {
+    vector<int> stuff = { 100, 200, 300 };
+    Block *test;
+    for(int num : stuff)
+    {
+        test = new Block();
+        test->size = num;
+        ram.push_back(*test);
+    }
+    
+    allocate.push_back(10);
+    allocate.push_back(100);
+    allocate.push_back(20);
+    worstFitAllocation();
     return 0;
 }
 
@@ -46,30 +75,59 @@ int main()
 
 // function to load data into ram
 
-bool worstFit(vector<int> blocks)
-{
-    vector<int> unallocated;
-    for(int block : blocks)
-    {
-        int idx, large;
-        for(Block slot : ram)
-        {
-            if(mostSpace(block) != -1 && ram[mostSpace(block)].spaceLeft() >= block)
-            {
-                ram[mostSpace(block)].blocks.push_back(block);
-            }
+struct args {
+    int idx;
+};
 
-            unallocated.push_back(block);
-            printf("couldn't place block of size: %d", block);
+void worstFitAllocation()
+{
+    int size = ram.size();
+    pthread_t threads[size];
+
+    for (int i = 0; i < size; i++)
+    {
+        struct args *thread_args = (struct args *)malloc(sizeof(struct args));
+        thread_args->idx = i;
+        if (pthread_create(&threads[i], NULL, worstFit, (void *)thread_args) != 0)
+        {
+            perror("pthread_create");
+            exit(-1);
         }
     }
 
-    printf("The space remaining: ", remainingSpace());
-    printf("These block were not allocated:\n");
-    for(int num : unallocated)
+    for (int i = 0; i < size; i++)
     {
-        cout << num << endl;
+        if (pthread_join(threads[i], NULL) != 0)
+        {
+            perror("pthread_join");
+            exit(-1);
+        }
     }
+
+    printSpace();
+    printf("Worst allocation space remaining: %d\n", remainingSpace());
+    printRam();
+    clearRam();
+}
+
+void *worstFit(void *params)
+{
+    bool done = false;
+    mtx.lock();
+    int idx = ((struct args*)params)->idx;
+    int size = allocate[idx];
+    if(mostSpace(allocate[size]) != -1 && ram[mostSpace(size)].spaceLeft() >= size)
+    {
+        ram[mostSpace(size)].blocks.push_back(size);
+        done = true;
+    }
+    mtx.unlock();
+    
+    if(!done)
+    {
+        printf("couldn't place block of size: %d", size);
+    }
+    return 0;
 }
 
 // worst fit
@@ -115,6 +173,19 @@ int leastSpace(int limit)
     return idx;
 }
 
+// prints out contents of ram
+void printRam()
+{
+    for(Block slot : ram)
+    {
+        printSpace();
+        cout << "Block size: " << slot.size << "\n";
+        cout << "Allocations are: ";
+        for (int num : slot.blocks) { cout << num << " "; }
+        cout << "\n";
+    }
+}
+
 // clear ram
 void clearRam()
 {
@@ -134,4 +205,9 @@ int remainingSpace()
     }
 
     return sum;
+}
+
+void printSpace()
+{
+    cout << "========================================" << "\n";
 }

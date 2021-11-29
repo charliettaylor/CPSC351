@@ -20,7 +20,12 @@ start: Assignment1/start.cpp
 	./start
 	make clean
 
+start2: Assignment2/main.cpp
+	${CXX} Assignment2/main.cpp -o main -lpthread
+	.Assignment2/main
+	make clean
 
 clean:
 	rm -f start
 	rm -f producer
+	rm -f main
