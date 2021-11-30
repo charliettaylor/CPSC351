@@ -247,16 +247,10 @@ void printRam()
 // clear ram
 void clearRam()
 {
-    //I changed the for loop because the other form actually creates local variable clones of the blocks in the ram vector and clears them, not actually clearing the ram vector
-    for (size_t i = 0; i < ram.size(); i++)
+    for(Block& slot : ram)
     {
-        ram[i].blocks.clear();
+        slot.blocks.clear();
     }
-
-    // for(Block slot : ram)
-    // {
-    //     slot.blocks.clear();
-    // }
 }
 
 // space left in ram
