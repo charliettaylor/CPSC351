@@ -38,7 +38,9 @@ struct Block
 };
 
 void worstFitAllocation();
+void bestFitAllocation();
 void *worstFit(void *params);
+void *bestFit(void *params);
 int mostSpace(int);
 int leastSpace(int);
 void printRam();
@@ -67,7 +69,9 @@ int main()
     allocate.push_back(10);
     allocate.push_back(100);
     allocate.push_back(20);
+    bestFitAllocation();
     worstFitAllocation();
+    //bestFitAllocation();
     return 0;
 }
 
@@ -110,6 +114,38 @@ void worstFitAllocation()
     clearRam();
 }
 
+void bestFitAllocation() 
+{
+    int size = ram.size();
+    pthread_t threads[size];
+
+    for (int i = 0; i < size; i++)
+    {
+        struct args *thread_args = (struct args *)malloc(sizeof(struct args));
+        thread_args -> idx = i;
+        if (pthread_create(&threads[i], NULL, bestFit, (void *)thread_args) != 0)
+        {
+            perror("pthread_create");
+            exit(-1);
+        }
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        if (pthread_join(threads[i], NULL) != 0)
+        {
+            perror("pthread_join");
+            exit(-1);
+        }
+    }
+
+    printSpace();
+    cout << "Best allocation space remaining: " << remainingSpace() << endl;
+    printRam();
+    clearRam();
+
+}
+
 void *worstFit(void *params)
 {
     bool done = false;
@@ -126,6 +162,26 @@ void *worstFit(void *params)
     if(!done)
     {
         printf("couldn't place block of size: %d", size);
+    }
+    return 0;
+}
+
+void *bestFit(void *params)
+{
+    bool done = false;
+    mtx.lock();
+    int idx = ((struct args*)params) -> idx;
+    int size = allocate[idx];
+    if(leastSpace(allocate[size]) != -1 && ram[leastSpace(size)].spaceLeft() >= size)
+    {
+        ram[leastSpace(size)].blocks.push_back(size);
+        done = true;
+    }
+    mtx.unlock();
+
+    if(!done)
+    {
+        cout << "Could not place block of size: " << size << endl;
     }
     return 0;
 }
@@ -184,15 +240,23 @@ void printRam()
         for (int num : slot.blocks) { cout << num << " "; }
         cout << "\n";
     }
+    printSpace();
+    cout << endl;
 }
 
 // clear ram
 void clearRam()
 {
-    for(Block slot : ram)
+    // I changed the for loop because for some reason unbeknownst to me the other loop just doesn't actually clear the vector??
+    for (size_t i = 0; i < ram.size(); i++)
     {
-        slot.blocks.clear();
+        ram[i].blocks.clear();
     }
+
+    // for(Block slot : ram)
+    // {
+    //     slot.blocks.clear();
+    // }
 }
 
 // space left in ram
