@@ -22,7 +22,7 @@ start: Assignment1/start.cpp
 
 start2: Assignment2/main.cpp
 	${CXX} Assignment2/main.cpp -o main -lpthread
-	.Assignment2/main
+	./main
 	make clean
 
 clean:
