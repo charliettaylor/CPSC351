@@ -247,7 +247,7 @@ void printRam()
 // clear ram
 void clearRam()
 {
-    // I changed the for loop because for some reason unbeknownst to me the other loop just doesn't actually clear the vector??
+    //I changed the for loop because the other form actually creates local variable clones of the blocks in the ram vector and clears them, not actually clearing the ram vector
     for (size_t i = 0; i < ram.size(); i++)
     {
         ram[i].blocks.clear();
