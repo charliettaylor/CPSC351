@@ -39,10 +39,13 @@ struct Block
 
 void worstFitAllocation();
 void bestFitAllocation();
+void firstFitAllocation(); 
 void *worstFit(void *params);
 void *bestFit(void *params);
+void *firstFit(void *params); 
 int mostSpace(int);
 int leastSpace(int);
+int firstSpace(int);
 void printRam();
 void clearRam();
 int remainingSpace();
@@ -71,6 +74,7 @@ int main()
     allocate.push_back(20);
     bestFitAllocation();
     worstFitAllocation();
+    firstFitAllocation(); 
     //bestFitAllocation();
     return 0;
 }
@@ -82,6 +86,37 @@ int main()
 struct args {
     int idx;
 };
+
+void firstFitAllocation()
+{
+    int size = ram.size();
+    pthread_t threads[size];
+
+    for (int i = 0; i < size; i++)
+    {
+        struct args *thread_args = (struct args *)malloc(sizeof(struct args));
+        thread_args->idx = i;
+        if (pthread_create(&threads[i], NULL, firstFit, (void *)thread_args) != 0)
+        {
+            perror("pthread_create");
+            exit(-1);
+        }
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        if (pthread_join(threads[i], NULL) != 0)
+        {
+            perror("pthread_join");
+            exit(-1);
+        }
+    }
+
+    printSpace();
+    printf("First allocation space remaining: %d\n", remainingSpace());
+    printRam();
+    clearRam();
+}
 
 void worstFitAllocation()
 {
@@ -146,6 +181,26 @@ void bestFitAllocation()
 
 }
 
+void *firstFit(void *params)
+{
+    bool done = false;
+    mtx.lock();
+    int idx = ((struct args*)params)->idx;
+    int size = allocate[idx];
+    if(firstSpace(allocate[size]) != -1 && ram[firstSpace(size)].spaceLeft() >= size)
+    {
+        ram[firstSpace(size)].blocks.push_back(size);
+        done = true;
+    }
+    mtx.unlock();
+    
+    if(!done)
+    {
+        printf("couldn't place block of size: %d", size);
+    }
+    return 0;
+}
+
 void *worstFit(void *params)
 {
     bool done = false;
@@ -184,6 +239,28 @@ void *bestFit(void *params)
         cout << "Could not place block of size: " << size << endl;
     }
     return 0;
+}
+
+// first fit
+int firstSpace(int limit)
+{
+    int first = 0, idx;
+    for(int i = 0; i < ram.size(); i++)
+    {
+        if(ram[i].spaceLeft() > limit)
+        {
+            first = ram[i].spaceLeft();
+            idx = i;
+            break;
+        }
+    }
+
+    if(first < limit) 
+    {
+        return -1;
+    }
+
+    return idx;
 }
 
 // worst fit
