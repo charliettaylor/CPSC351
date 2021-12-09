@@ -73,14 +73,6 @@ int main()
     // }
 
     parseFunction("input.txt");
-    cout << "Parsed data is: " << endl;
-    printRam();
-    cout << "Blocks to be allocated: " << endl;
-    for (int i : allocate)
-    {
-        cout << i << " ";
-    }
-    cout << endl;
     
     
     // allocate.push_back(10);
@@ -369,14 +361,14 @@ void parseFunction(string path)
     inFile.open(path);
     if (inFile.is_open())
     {
-        getline(inFile, myline);
+        getline(inFile, myline); // Get first line of file for ram blocks
         for (char ch : myline)
         {
             if (ch != ',')
             {
                 input += ch;
             }
-            else
+            else // Put input into block in ram
             {
                 test = new Block();
                 test->size = stoi(input);
@@ -391,7 +383,7 @@ void parseFunction(string path)
             {
                 input += ch;
             }
-            else
+            else // Push input into allocate
             {
                 allocate.push_back(stoi(input));
                 input.clear();
@@ -399,5 +391,21 @@ void parseFunction(string path)
         }
     }
     inFile.close();
+
+
+    //Print out data read from file
+    cout << "Parsed data is: " << endl;
+    cout << "Ram blocks: " << endl;
+    for (Block b : ram)
+    {
+        cout << b.size << " ";
+    }
+    cout << endl << endl;
+    cout << "Blocks to be allocated: " << endl;
+    for (int i : allocate)
+    {
+        cout << i << " ";
+    }
+    cout << endl << endl;
     
 }
