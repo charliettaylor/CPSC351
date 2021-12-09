@@ -2,8 +2,9 @@ Assignment1/a.exe
 Assignment1/.vscode/settings.json
 Assignment1/a.out
 .vscode/c_cpp_properties.json
-Assignment1/.vscode/tasks.json
-Assignment1/.vscode/launch.json
+Assignment1/.vscode
 .vscode/launch.json
 .vscode/tasks.json
 Assignment2/main
+*.json
+Assignment2/.vscode/tasks.json
