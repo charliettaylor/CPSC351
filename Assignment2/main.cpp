@@ -11,33 +11,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include "block.cpp"
+
 using namespace std;
-
-// struct Block
-// {
-//     // size of block
-//     int size;
-//     // allocations to block
-//     vector<int> blocks;
-
-//     // return whether cell is full
-//     bool isFull() const{
-//         int sum = 0;
-//         for (int block : blocks)
-//             sum += block;
-//         return size == sum;
-//     }
-
-//     // return space left to allocate
-//     int spaceLeft() const{
-//         int sum = 0;
-//         for (int block : blocks)
-//             sum += block;
-//         return size - sum;
-//     }
-
-//     Block() : size(0) {}
-// };
 
 
 void worstFitAllocation();
@@ -62,32 +37,24 @@ vector<int> allocate;
 // lock for threads
 mutex mtx;
 
-int main()
+int main(int argc, char *argv[])
 {
-    // vector<int> stuff = { 100, 200, 300 };
-    // Block *test;
-    // for(int num : stuff)
-    // {
-    //     test = new Block();
-    //     test->size = num;
-    //     ram.push_back(*test);
-    // }
-
-    parseFunction("input.txt");
+    if (argc == 1) // Check to see if no commandline arguments are made
+    {
+        parseFunction("input.txt");
+    }
+    if (argc > 1) // If commandline argument is given for input file, use that for parsing data
+    {
+        parseFunction(argv[1]);
+    }
     
-    
-    // allocate.push_back(10);
-    // allocate.push_back(100);
-    // allocate.push_back(20);
-    bestFitAllocation();
+    bestFitAllocation(); 
     worstFitAllocation();
     firstFitAllocation(); 
+
     return 0;
 }
 
-// parse function to get user input
-
-// function to load data into ram
 
 struct args {
     int idx;
@@ -346,6 +313,7 @@ void printSpace()
     cout << "========================================" << "\n";
 }
 
+// Parse file to load data
 void parseFunction(string path)
 {
     string myline;

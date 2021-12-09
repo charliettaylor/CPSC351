@@ -20,9 +20,9 @@ start: Assignment1/start.cpp
 	./start
 	make clean
 
-start2: Assignment2/main.cpp
-	${CXX} Assignment2/main.cpp -o main -lpthread
-	./main
+start2: Assignment2/main.cpp Assignment2/block.cpp
+	${CXX} Assignment2/main.cpp Assignment2/block.cpp -o main -lpthread
+	./main Assignment2/input.txt
 	make clean
 
 clean:
