@@ -10,33 +10,34 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "block.cpp"
 using namespace std;
 
-struct Block
-{
-    // size of block
-    int size;
-    // allocations to block
-    vector<int> blocks;
+// struct Block
+// {
+//     // size of block
+//     int size;
+//     // allocations to block
+//     vector<int> blocks;
 
-    // return whether cell is full
-    bool isFull() const{
-        int sum = 0;
-        for (int block : blocks)
-            sum += block;
-        return size == sum;
-    }
+//     // return whether cell is full
+//     bool isFull() const{
+//         int sum = 0;
+//         for (int block : blocks)
+//             sum += block;
+//         return size == sum;
+//     }
 
-    // return space left to allocate
-    int spaceLeft() const{
-        int sum = 0;
-        for (int block : blocks)
-            sum += block;
-        return size - sum;
-    }
+//     // return space left to allocate
+//     int spaceLeft() const{
+//         int sum = 0;
+//         for (int block : blocks)
+//             sum += block;
+//         return size - sum;
+//     }
 
-    Block() : size(0) {}
-};
+//     Block() : size(0) {}
+// };
 
 
 void worstFitAllocation();
@@ -94,7 +95,7 @@ struct args {
 
 void firstFitAllocation()
 {
-    int size = ram.size();
+    int size = allocate.size();
     pthread_t threads[size];
 
     for (int i = 0; i < size; i++)
@@ -125,7 +126,7 @@ void firstFitAllocation()
 
 void worstFitAllocation()
 {
-    int size = ram.size();
+    int size = allocate.size();
     pthread_t threads[size];
 
     for (int i = 0; i < size; i++)
@@ -156,7 +157,7 @@ void worstFitAllocation()
 
 void bestFitAllocation() 
 {
-    int size = ram.size();
+    int size = allocate.size();
     pthread_t threads[size];
 
     for (int i = 0; i < size; i++)
@@ -192,9 +193,9 @@ void *firstFit(void *params)
     mtx.lock();
     int idx = ((struct args*)params)->idx;
     int size = allocate[idx];
-    if(firstSpace(allocate[size]) != -1 && ram[firstSpace(size)].spaceLeft() >= size)
+    if(firstSpace(size) != -1 && ram[firstSpace(size)].spaceLeft() >= size)
     {
-        ram[firstSpace(size)].blocks.push_back(size);
+        ram[firstSpace(size)].push(size);
         done = true;
     }
     mtx.unlock();
@@ -212,9 +213,9 @@ void *worstFit(void *params)
     mtx.lock();
     int idx = ((struct args*)params)->idx;
     int size = allocate[idx];
-    if(mostSpace(allocate[size]) != -1 && ram[mostSpace(size)].spaceLeft() >= size)
+    if(mostSpace(size) != -1 && ram[mostSpace(size)].spaceLeft() >= size)
     {
-        ram[mostSpace(size)].blocks.push_back(size);
+        ram[mostSpace(size)].push(size);
         done = true;
     }
     mtx.unlock();
@@ -228,13 +229,13 @@ void *worstFit(void *params)
 
 void *bestFit(void *params)
 {
-    bool done = false;
     mtx.lock();
+    bool done = false;    
     int idx = ((struct args*)params) -> idx;
     int size = allocate[idx];
-    if(leastSpace(allocate[size]) != -1 && ram[leastSpace(size)].spaceLeft() >= size)
+    if(leastSpace(size) != -1 && ram[leastSpace(size)].spaceLeft() >= size)
     {
-        ram[leastSpace(size)].blocks.push_back(size);
+        ram[leastSpace(size)].push(size);
         done = true;
     }
     mtx.unlock();
@@ -247,34 +248,27 @@ void *bestFit(void *params)
 }
 
 // first fit
-int firstSpace(int limit)
+int firstSpace(int limit) // limit is size of block to be placed
 {
-    int first = 0, idx;
     for(int i = 0; i < ram.size(); i++)
     {
-        if(ram[i].spaceLeft() > limit)
+        if(ram[i].spaceLeft() >= limit)
         {
-            first = ram[i].spaceLeft();
-            idx = i;
-            break;
+            return i;   
         }
     }
 
-    if(first < limit) 
-    {
-        return -1;
-    }
+    return -1;
 
-    return idx;
 }
 
 // worst fit
-int mostSpace(int limit)
+int mostSpace(int limit) // limit is size of block to be placed
 {
     int max = 0, idx;
     for(int i = 0; i < ram.size(); i++)
     {
-        if(ram[i].spaceLeft() > max && ram[i].spaceLeft() > limit)
+        if(ram[i].spaceLeft() > max && ram[i].spaceLeft() >= limit) 
         {
             max = ram[i].spaceLeft();
             idx = i;
@@ -291,7 +285,7 @@ int mostSpace(int limit)
 
 // best fit
 // looks for smallest space that also fits the limit condition
-int leastSpace(int limit)
+int leastSpace(int limit) // limit is the size of block to be placed
 {
     int min = numeric_limits<int>::max(), idx;
     for(int i = 0; i < ram.size(); i++)
@@ -317,9 +311,9 @@ void printRam()
     for(Block slot : ram)
     {
         printSpace();
-        cout << "Block size: " << slot.size << "\n";
+        cout << "Block size: " << slot.getSize() << "\n";
         cout << "Allocations are: ";
-        for (int num : slot.blocks) { cout << num << " "; }
+        for (int num : slot.getBlocks()) { cout << num << " "; }
         cout << "\n";
     }
     printSpace();
@@ -331,7 +325,7 @@ void clearRam()
 {
     for(Block& slot : ram)
     {
-        slot.blocks.clear();
+        slot.clearblocks();
     }
 }
 
@@ -370,8 +364,7 @@ void parseFunction(string path)
             }
             else // Put input into block in ram
             {
-                test = new Block();
-                test->size = stoi(input);
+                test = new Block(stoi(input));
                 ram.push_back(*test);
                 input.clear();
             }
@@ -395,10 +388,10 @@ void parseFunction(string path)
 
     //Print out data read from file
     cout << "Parsed data is: " << endl;
-    cout << "Ram blocks: " << endl;
+    cout << "Ram pages: " << endl;
     for (Block b : ram)
     {
-        cout << b.size << " ";
+        cout << b.getSize() << " ";
     }
     cout << endl << endl;
     cout << "Blocks to be allocated: " << endl;
