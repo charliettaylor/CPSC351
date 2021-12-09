@@ -6,5 +6,5 @@ Assignment1/.vscode
 .vscode/launch.json
 .vscode/tasks.json
 Assignment2/main
-*.json
 Assignment2/.vscode/tasks.json
+.vscode/settings.json

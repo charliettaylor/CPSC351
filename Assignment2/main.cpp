@@ -4,6 +4,7 @@
 #include <limits>
 #include <mutex>
 #include <pthread.h>
+#include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -37,6 +38,7 @@ struct Block
     Block() : size(0) {}
 };
 
+
 void worstFitAllocation();
 void bestFitAllocation();
 void firstFitAllocation(); 
@@ -50,6 +52,7 @@ void printRam();
 void clearRam();
 int remainingSpace();
 void printSpace();
+void parseFunction(string path);
 
 // blocks to be filled
 vector<Block> ram;
@@ -60,22 +63,32 @@ mutex mtx;
 
 int main()
 {
-    vector<int> stuff = { 100, 200, 300 };
-    Block *test;
-    for(int num : stuff)
+    // vector<int> stuff = { 100, 200, 300 };
+    // Block *test;
+    // for(int num : stuff)
+    // {
+    //     test = new Block();
+    //     test->size = num;
+    //     ram.push_back(*test);
+    // }
+
+    parseFunction("input.txt");
+    cout << "Parsed data is: " << endl;
+    printRam();
+    cout << "Blocks to be allocated: " << endl;
+    for (int i : allocate)
     {
-        test = new Block();
-        test->size = num;
-        ram.push_back(*test);
+        cout << i << " ";
     }
+    cout << endl;
     
-    allocate.push_back(10);
-    allocate.push_back(100);
-    allocate.push_back(20);
+    
+    // allocate.push_back(10);
+    // allocate.push_back(100);
+    // allocate.push_back(20);
     bestFitAllocation();
     worstFitAllocation();
     firstFitAllocation(); 
-    //bestFitAllocation();
     return 0;
 }
 
@@ -196,7 +209,7 @@ void *firstFit(void *params)
     
     if(!done)
     {
-        printf("couldn't place block of size: %d", size);
+        printf("First fit couldn't place block of size: %d \n", size);
     }
     return 0;
 }
@@ -216,7 +229,7 @@ void *worstFit(void *params)
     
     if(!done)
     {
-        printf("couldn't place block of size: %d", size);
+        printf("Worst fit couldn't place block of size: %d \n", size);
     }
     return 0;
 }
@@ -236,7 +249,7 @@ void *bestFit(void *params)
 
     if(!done)
     {
-        cout << "Could not place block of size: " << size << endl;
+        cout << "Best fit Could not place block of size: " << size << endl;
     }
     return 0;
 }
@@ -345,4 +358,46 @@ int remainingSpace()
 void printSpace()
 {
     cout << "========================================" << "\n";
+}
+
+void parseFunction(string path)
+{
+    string myline;
+    string input;
+    Block *test;
+    ifstream inFile;
+    inFile.open(path);
+    if (inFile.is_open())
+    {
+        getline(inFile, myline);
+        for (char ch : myline)
+        {
+            if (ch != ',')
+            {
+                input += ch;
+            }
+            else
+            {
+                test = new Block();
+                test->size = stoi(input);
+                ram.push_back(*test);
+                input.clear();
+            }
+        }
+        getline(inFile, myline);
+        for (char ch : myline)
+        {
+            if (ch != ',')
+            {
+                input += ch;
+            }
+            else
+            {
+                allocate.push_back(stoi(input));
+                input.clear();
+            }
+        }
+    }
+    inFile.close();
+    
 }
