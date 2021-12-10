@@ -368,5 +368,4 @@ void parseFunction(string path)
         cout << i << " ";
     }
     cout << endl << endl;
-    
 }

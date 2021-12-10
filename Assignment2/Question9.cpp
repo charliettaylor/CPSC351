@@ -35,22 +35,22 @@ int main(int argc, char *argv[])
     cout << "Invalid input try again." << endl;
     exit(1);
   }
-     pages= atoi(argv[1]);
-     page_size= atoi(argv[3]);
+  pages= atoi(argv[1]);
+  page_size= atoi(argv[3]);
 
-pthread_create(&ramcalc, NULL, ramresult,(void *)&ramcalc);
-pthread_create(&physcalc, NULL, physaddresscalc,(void *)&physcalc);
+  pthread_create(&ramcalc, NULL, ramresult,(void *)&ramcalc);
+  pthread_create(&physcalc, NULL, physaddresscalc,(void *)&physcalc);
 
-pthread_join(ramcalc, NULL);
-pthread_join(physcalc, NULL);
-cout << "Suppose RAM contains " << pages << " pages, with " << page_size << " bytes page size. What is the total RAM size? \n" << endl;
-cout << ramsize <<" bytes.\n";
+  pthread_join(ramcalc, NULL);
+  pthread_join(physcalc, NULL);
+  cout << "Suppose RAM contains " << pages << " pages, with " << page_size << " bytes page size. What is the total RAM size? \n" << endl;
+  cout << ramsize <<" bytes.\n";
 
-cout << "How many bits are needed to each physical address? \n" << endl;
-cout << phys_address_size << " bytes." << endl;
+  cout << "How many bits are needed to each physical address? \n" << endl;
+  cout << phys_address_size << " bytes." << endl;
 
 
-return 0;
+  return 0;
 }
 
 void *ramresult(void *tid)

@@ -25,6 +25,11 @@ start2: Assignment2/main.cpp Assignment2/block.cpp
 	./main Assignment2/input.txt
 	make clean
 
+Q9: Assignment2/Question9.cpp
+	${CXX} Assignment2/Question9.cpp -o main -lpthread
+	./main ${PAGES} pages ${BYTES} bytes
+	make clean
+
 clean:
 	rm -f start
 	rm -f producer
